@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { useMount, useSetState } from 'react-use';
 import { useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import { fetchUserData } from '../redux/action/UsersAction';
 import UserCard from '../components/UserCard';
 import ThemeToggle from '../components/ThemeToggle';
+
+const Comp = lazy(() => import('../components/ListSkeleton'));
 
 export default function ViewPage() {
   const navigate = useNavigate();
@@ -33,7 +35,25 @@ export default function ViewPage() {
         Go to home page
       </Button>
       <ThemeToggle />
-      {state.usersList.map((user, index) => (
+      <Suspense fallback={<Comp listsToRender={6} />}>
+        {state.usersList.length == 0 ? (
+          <Comp listsToRender={6} />
+        ) : (
+          state.usersList.map((user, index) => (
+            <UserCard
+              key={index}
+              avatar={user.avatar}
+              firstName={user.first_name}
+              lastName={user.last_name}
+              email={user.email}
+              id={user.id}
+              deleteButton
+              getUsersList={getUsersList}
+            />
+          ))
+        )}
+      </Suspense>
+      {/* {state.usersList.map((user, index) => (
         <UserCard
           key={index}
           avatar={user.avatar}
@@ -44,7 +64,7 @@ export default function ViewPage() {
           deleteButton
           getUsersList={getUsersList}
         />
-      ))}
+      ))} */}
     </div>
   );
 }
